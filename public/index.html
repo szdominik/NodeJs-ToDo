@@ -83,7 +83,7 @@
 		});
 		
 		function loadOneToDoToTDs(todo) {
-			var s;
+			var s = '';
 			s += '<td>' + todo.title + '</td>'
 			s += '<td>' + todo.deadline + '</td>'
 			s += '<td>'
@@ -134,13 +134,15 @@
 		
 		function loadAllLabels() {
 			$.getJSON('/labels', function(json) {
+				console.log(json)
 				var labels = json.labels;
-				var s;
+				var s = '';
 				labels.forEach(function(label) {
 					s += '<label class="btn btn-' + label.style + '">'
 						+ '<input name="label' + label.id + '" type="checkbox" autocomplete="off">'
 						+ label.name + '</label>'
 				});
+				console.log(s)
 				$('#labels-store').html(s);
 			});
 		};

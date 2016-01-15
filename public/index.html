@@ -1,0 +1,149 @@
+<html>
+<head>
+	<title>ToDo WebApplication for the course "Databases on Web"</title>
+	<link type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" integrity="sha256-7s5uDGW3AHqw6xtJmNNtr+OBRJUlgkNJEo78P4b0yRw= sha512-nNo+yCHEyn0smMxSswnf/OnX6/KwJuZTlNZBjauKhTK0c+zT+q5JOCx0UFhXQ6rJR9jg6Es8gPuD2uZcYDLqSw==" crossorigin="anonymous">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.1/moment.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.1/locale/hu.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha256-KXn5puMvxCw+dAYznun+drMdG1IFl3agK0p/pqT9KAo= sha512-2e8qq0ETcfWRI4HJBzQiA3UoyFk6tbNyG+qSaIBZLyW9Xf3sWZHN/lxe9fTh1U45DpPf07yj94KsUHHWe4Yk1A==" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js"></script>
+</head>
+<body>
+	<div class="container">
+		<div class="row">
+			<form class="form-inline" action="/todos" method="POST">
+				<div class="form-group">
+					<input type="text" class="form-control" placeholder="Mit kell csinálnom?" name="title" />
+					 <div class='input-group date' id='datetimepicker2'>
+                     	<input type='text' class="form-control" name="deadline" />
+                    		<span class="input-group-addon">
+                        		<span class="glyphicon glyphicon-calendar"></span>
+                    		</span>
+                	</div>
+					<div class="btn-group" data-toggle="buttons" id="labels-store">
+					</div>
+				</div>
+				<button class="btn btn-default" type="submit">Új felvétele</button>
+			</form>
+		</div>
+		
+		<div class="row">
+			<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#newLabelModal">
+				Új címke felvitele
+			</button>
+		</div>
+		
+		<div id="todos-store" class="row"></div>
+	</div>
+	
+	<div class="modal fade" id="newLabelModal" tabindex="-1" aria-labelledby="" role="dialog" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" aria-labelledby="">Új címke felvitele</h4>
+				</div>
+				<div class="modal-body">
+					<form class="form-inline" action="/labels" method="POST">
+						<div class="form-group">
+							<input type="text" class="form-control" placeholder="Címke neve" name="name" />
+							<select class="form-control" name="style">
+								<option value="default">default</option>
+								<option value="primary">primary</option>
+								<option value="success">success</option>
+								<option value="info">info</option>
+								<option value="warning">warning</option>
+								<option value="danger">danger</option>
+							</select>
+						</div>
+						<button class="btn btn-default" type="submit">Új felvétele</button>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<span class="label label-default">Default</span>
+					<span class="label label-primary">Primary</span>
+					<span class="label label-success">Success</span>
+					<span class="label label-info">Info</span>
+					<span class="label label-warning">Warning</span>
+					<span class="label label-danger">Danger</span>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<script>
+		$(document).ready(function () {
+			loadAllToDos();
+			loadAllLabels();
+			
+			$('#datetimepicker2').datetimepicker({
+				locale: 'hu'
+			});
+		});
+		
+		function loadOneToDoToTDs(todo) {
+			var s;
+			s += '<td>' + todo.title + '</td>'
+			s += '<td>' + todo.deadline + '</td>'
+			s += '<td>'
+				todo.labels.forEach(function(label) {
+					s += '<span class="label label-'+ label.style + '">' + label.name + '</span> '
+				});
+			s += '</td>'
+			s += '<td>'	
+				if(todo.done)
+					s += '<span class="label label-success">Kész!</span>'
+				else
+					s += '<button type="button" data-tdid="' + todo.id
+							+'" class="doneButton btn btn-danger btn-xs">Elkészültem!</button>'
+			s += '</td>'
+			return s;
+		};
+		
+		function loadAllToDos() {
+			$.getJSON('/todos', function(json) {
+				var todos = json.todos;
+				var s = '<table class="table table-hover table-condensed">'
+					s += '<thead>'
+						s += '<tr>'
+							s += '<th>Mit kell csinálnom?</th>'
+							s += '<th>Mikorra?</th>'
+							s += '<th>Amúgy mi is ez?</th>'
+							s += '<th>Kész?</th>'
+						s += '</tr>'
+					s += '</thead>'
+					s += '<tbody>'
+						todos.forEach(function(todo) {
+							s += '<tr id="todo'+ todo.id +'">'
+								s += loadOneToDoToTDs(todo);
+							s += '</tr>'
+						});
+					s += '</tbody>'
+				s += '</table>'
+				$('#todos-store').html(s);
+				
+				$('.doneButton').click(function(e){
+					var toDoId = $(e.currentTarget).data('tdid');
+					$.post('/donetodo', { id: toDoId }, function(result) {
+						$('#todo' + toDoId).html(loadOneToDoToTDs(result.new_todo));
+					});
+				});
+			});
+		};
+		
+		function loadAllLabels() {
+			$.getJSON('/labels', function(json) {
+				var labels = json.labels;
+				var s;
+				labels.forEach(function(label) {
+					s += '<label class="btn btn-' + label.style + '">'
+						+ '<input name="label' + label.id + '" type="checkbox" autocomplete="off">'
+						+ label.name + '</label>'
+				});
+				$('#labels-store').html(s);
+			});
+		};
+	</script>
+</body>
+</html>

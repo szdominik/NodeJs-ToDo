@@ -62,6 +62,15 @@ function getLabelByName(name) {
 	})[0];
 };
 
+function hasLabel(item, id) {
+	var volt = false;
+	item.labels.forEach(function(label) {
+		if(label.id == id)
+			volt = true;
+	});
+	return volt;
+}
+
 app.use(bodyParser.urlencoded({
 	extended: true
 })); 
@@ -71,7 +80,12 @@ app.get('/', function(req, res) {
 });
 
 app.get('/todos', function(req, res) {
-	res.status(200).send({todos: todos.sort(sortTodos)});
+	var filtered = todos.sort(sortTodos);
+	if(req.query.labelId != undefined && req.query.labelId != 0)
+		filtered = filtered.filter(function(item) {
+			return hasLabel(item, parseInt(req.query.labelId, 10));
+		});
+	res.status(200).send({todos: filtered});
 });
 
 app.get('/labels', function(req, res) {

@@ -34,6 +34,11 @@
 			</button>
 		</div>
 		
+		<div class="row">
+			<div class="col-md-offset-6 btn-group" role="group" id="labels-filter">
+			</div>
+		</div>
+		
 		<div id="todos-store" class="row"></div>
 	</div>
 	
@@ -101,8 +106,8 @@
 			return s;
 		};
 		
-		function loadAllToDos() {
-			$.getJSON('/todos', function(json) {
+		function loadAllToDos(labelId) {
+			$.getJSON('/todos', { labelId: labelId }, function(json) {
 				var todos = json.todos;
 				var s = '<table class="table table-hover table-condensed">'
 					s += '<thead>'
@@ -134,16 +139,25 @@
 		
 		function loadAllLabels() {
 			$.getJSON('/labels', function(json) {
-				console.log(json)
 				var labels = json.labels;
-				var s = '';
+				var store = '';
+				var filter = '<button type="button" class="labelBtn btn btn-default"' + 
+							'data-labelid="0">Mind</button>'
 				labels.forEach(function(label) {
-					s += '<label class="btn btn-' + label.style + '">'
+					store += '<label class="btn btn-' + label.style + '">'
 						+ '<input name="label' + label.id + '" type="checkbox" autocomplete="off">'
-						+ label.name + '</label>'
+						+ label.name + '</label>';
+					filter += '<button type="button" class="labelBtn btn btn-'+ label.style + '"' +
+						'data-labelid="' + label.id + '">'
+						+ label.name + '</button>';
 				});
-				console.log(s)
-				$('#labels-store').html(s);
+				$('#labels-store').html(store);
+				$('#labels-filter').html(filter);
+				
+				$('.labelBtn').click(function(e) {
+					var labelId = $(e.currentTarget).data('labelid');
+					loadAllToDos(labelId);
+				});
 			});
 		};
 	</script>

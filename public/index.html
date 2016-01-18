@@ -8,38 +8,93 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.1/locale/hu.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha256-KXn5puMvxCw+dAYznun+drMdG1IFl3agK0p/pqT9KAo= sha512-2e8qq0ETcfWRI4HJBzQiA3UoyFk6tbNyG+qSaIBZLyW9Xf3sWZHN/lxe9fTh1U45DpPf07yj94KsUHHWe4Yk1A==" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
 </head>
 <body>
 	<div class="container">
-		<div class="row">
-			<form class="form-inline" action="/todos" method="POST">
-				<div class="form-group">
-					<input type="text" class="form-control" placeholder="Mit kell csinálnom?" name="title" />
-					 <div class='input-group date' id='datetimepicker2'>
-                     	<input type='text' class="form-control" name="deadline" />
-                    		<span class="input-group-addon">
-                        		<span class="glyphicon glyphicon-calendar"></span>
-                    		</span>
-                	</div>
-					<div class="btn-group" data-toggle="buttons" id="labels-store">
-					</div>
-				</div>
-				<button class="btn btn-default" type="submit">Új felvétele</button>
-			</form>
-		</div>
-		
-		<div class="row">
-			<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#newLabelModal">
-				Új címke felvitele
-			</button>
-		</div>
-		
-		<div class="row">
-			<div class="col-md-offset-6 btn-group" role="group" id="labels-filter">
+		<div class="show" id="before-check">
+			<div class="jumbotron">
+				<h1>Üdv a ToDo oldalán!</h1>
+				<p>A ToDo egy egyszerű webalkalmazás, aminek segítségével nyilvántartást tudsz vezetni
+					a teendőidről, határidőd és kategóriát tudsz nekik megadni, hogy könnyebben 
+					rendezhesd az életed! Próbáld ki!
+				</p>
+				<p>
+					<a class="btn btn-primary btn-lg" href="#" role="button" data-toggle="modal" data-target="#registerModal">Regisztráció</a>
+					<a class="btn btn-info btn-lg" href="#" role="button" data-toggle="modal" data-target="#signinModal">Bejelentkezés</a>
+				</p>
 			</div>
 		</div>
-		
-		<div id="todos-store" class="row"></div>
+		<div class="hidden" id="after-check">
+			<div class="row">
+				<form class="form-inline" action="/todos" method="POST">
+					<div class="form-group">
+						<input type="text" class="form-control" placeholder="Mit kell csinálnom?" name="title" />
+						<div class='input-group date' id='datetimepicker2'>
+							<input type='text' class="form-control" name="deadline" />
+								<span class="input-group-addon">
+									<span class="glyphicon glyphicon-calendar"></span>
+								</span>
+						</div>
+						<div class="btn-group" data-toggle="buttons" id="labels-store">
+						</div>
+					</div>
+					<button class="btn btn-default" type="submit">Új felvétele</button>
+				</form>
+			</div>
+			
+			<div class="row">
+				<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#newLabelModal">
+					Új címke felvitele
+				</button>
+			</div>
+			
+			<div class="row">
+				<div class="col-md-offset-6 btn-group" role="group" id="labels-filter">
+				</div>
+			</div>
+			
+			<div id="todos-store" class="row"></div>
+		</div>
+	</div>
+	
+	<div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="" role="dialog" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" aria-labelledby="">Regisztráció</h4>
+				</div>
+				<div class="modal-body">
+					<form class="form-inline" action="/users" method="POST" id="registerForm">
+						<div class="form-group">
+							<input type="text" class="form-control" placeholder="Felhasználónév" id="registerName" name="name" />
+						</div>
+						<button class="btn btn-default" type="submit">Mehet!</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="modal fade" id="signinModal" tabindex="-1" aria-labelledby="" role="dialog" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" aria-labelledby="">Bejelentkezés</h4>
+				</div>
+				<div class="modal-body">
+					<form class="form-inline" action="/users" method="GET" id="signinForm">
+						<div class="form-group">
+							<input type="text" class="form-control" placeholder="Felhasználónév" id="signinName" name="name" />
+
+						</div>
+						<button class="btn btn-default" type="submit">Bejelentkezés</button>
+					</form>
+				</div>
+			</div>
+		</div>
 	</div>
 	
 	<div class="modal fade" id="newLabelModal" tabindex="-1" aria-labelledby="" role="dialog" aria-hidden="true">
@@ -79,22 +134,72 @@
 	
 	<script>
 		$(document).ready(function () {
+			if(getCookie('owner_id') != undefined)
+				initMainToDo(getCookie('owner_id'));
+			else
+				initCheckPart();
+		});
+		
+		function initCheckPart() {
+			$('#registerForm').submit(function(e) {
+				var userName = $('#registerName').val();
+				e.preventDefault();
+				$.post('/users', {
+					name: userName
+				}).done(function(result) {
+					initMainToDo(result.ownerId);
+				}).fail(function(result) {
+					var s = 'Sajnos a(z) ' + result.name + ' név már foglalt! Kérem, próbálja újra!'
+					alert(s);
+				}).always(function() {
+					$('#registerModal').modal('hide');
+				})
+			});
+			
+			$('#signinForm').submit(function(e) {
+				var userName = $('#signinName').val();
+				e.preventDefault();
+				$.getJSON('/users', {
+					name: userName
+				}).done(function(result) {
+					initMainToDo(result.ownerId);
+				}).fail(function(result) {
+					var s = 'Sajnos a(z) ' + userName + ' név nem létezik a rendszerben! Kérem, próbálja újra!'
+					alert(s);
+				}).always(function() {
+					$('#signinModal').modal('hide');
+				})
+			});
+		}
+		
+		function initMainToDo(ownerId) {
+			document.cookie = "owner_id=" + ownerId;
+			$('#before-check').removeClass('show').addClass('hidden');
+			$('#after-check').removeClass('hidden').addClass('show');
 			loadAllToDos();
 			loadAllLabels();
 			
 			$('#datetimepicker2').datetimepicker({
 				locale: 'hu'
-			});
-		});
+			});	
+		};
+		
+		function getCookie(key) {
+            var keyValue = document.cookie.match('(^|;) ?' + key + '=([^;]*)(;|$)');
+            return keyValue ? keyValue[2] : null;
+        };
 		
 		function loadOneToDoToTDs(todo) {
 			var s = '';
 			s += '<td>' + todo.title + '</td>'
 			s += '<td>' + todo.deadline + '</td>'
 			s += '<td>'
-				todo.labels.forEach(function(label) {
-					s += '<span class="label label-'+ label.style + '">' + label.name + '</span> '
-				});
+				if(todo.labels.length == 0)
+					s += '(nincs címke)'
+				else
+					todo.labels.forEach(function(label) {
+						s += '<span class="label label-'+ label.style + '">' + label.name + '</span> '
+					});
 			s += '</td>'
 			s += '<td>'	
 				if(todo.done)
@@ -107,38 +212,48 @@
 		};
 		
 		function loadAllToDos(labelId) {
-			$.getJSON('/todos', { labelId: labelId }, function(json) {
+			$.getJSON('/todos', { 
+					labelId: labelId,
+					ownerId: getCookie('owner_id')
+				}, function(json) {
 				var todos = json.todos;
-				var s = '<table class="table table-hover table-condensed">'
-					s += '<thead>'
-						s += '<tr>'
-							s += '<th>Mit kell csinálnom?</th>'
-							s += '<th>Mikorra?</th>'
-							s += '<th>Amúgy mi is ez?</th>'
-							s += '<th>Kész?</th>'
-						s += '</tr>'
-					s += '</thead>'
-					s += '<tbody>'
-						todos.forEach(function(todo) {
-							s += '<tr id="todo'+ todo.id +'">'
-								s += loadOneToDoToTDs(todo);
+				if (todos.length == 0)
+				{
+					$('#todos-store').html("Nincs megjeleníthető esemény!");
+				}
+				else
+				{
+					var s = '<table class="table table-hover table-condensed">'
+						s += '<thead>'
+							s += '<tr>'
+								s += '<th>Mit kell csinálnom?</th>'
+								s += '<th>Mikorra?</th>'
+								s += '<th>Amúgy mi is ez?</th>'
+								s += '<th>Kész?</th>'
 							s += '</tr>'
+						s += '</thead>'
+						s += '<tbody>'
+							todos.forEach(function(todo) {
+								s += '<tr id="todo'+ todo.id +'">'
+									s += loadOneToDoToTDs(todo);
+								s += '</tr>'
+							});
+						s += '</tbody>'
+					s += '</table>'
+					$('#todos-store').html(s);
+					
+					$('.doneButton').click(function(e){
+						var toDoId = $(e.currentTarget).data('tdid');
+						$.post('/donetodo', { id: toDoId }, function(result) {
+							$('#todo' + toDoId).html(loadOneToDoToTDs(result.new_todo));
 						});
-					s += '</tbody>'
-				s += '</table>'
-				$('#todos-store').html(s);
-				
-				$('.doneButton').click(function(e){
-					var toDoId = $(e.currentTarget).data('tdid');
-					$.post('/donetodo', { id: toDoId }, function(result) {
-						$('#todo' + toDoId).html(loadOneToDoToTDs(result.new_todo));
 					});
-				});
+				}
 			});
 		};
 		
 		function loadAllLabels() {
-			$.getJSON('/labels', function(json) {
+			$.getJSON('/labels', { ownerId: getCookie('owner_id')}, function(json) {
 				var labels = json.labels;
 				var store = '';
 				var filter = '<button type="button" class="labelBtn btn btn-default"' + 

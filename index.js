@@ -131,7 +131,7 @@ app.get('/todos', function(req, res) {
 		});
 		res.status(200).send({todos: filtered, labels: filteredLabels});
 	}
-	else
+	else //TODO: proper error (401/403)
 		res.redirect('/');
 });
 
@@ -142,7 +142,7 @@ app.get('/labels', function(req, res) {
 		});
 		res.status(200).send({labels: filtered});
 	}
-	else
+	else //TODO: proper error (401/403)
 		res.redirect('/');
 });
 
@@ -189,6 +189,7 @@ app.post('/todos', function(req, res) {
 		};
 		todos.push(new_todo);
 	}
+	//TODO: proper error (400)
 	res.redirect('/');
 });
 
@@ -202,6 +203,7 @@ app.post('/labels', function(req, res) {
 		};
 		labels.push(new_label);
 	}
+	 //TODO: proper error (400)
 	res.redirect('/');
 });
 

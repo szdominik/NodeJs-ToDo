@@ -117,15 +117,19 @@ app.get('/', function(req, res) {
 
 app.get('/todos', function(req, res) {
 	var filtered = todos.sort(sortTodos);
+	var ownerIdInt = parseInt(req.query.ownerId, 10);
 	if(req.query.labelId != undefined && req.query.labelId != 0)
 		filtered = filtered.filter(function(item) {
 			return hasLabel(item, parseInt(req.query.labelId, 10));
 		});
 	if(req.query.ownerId != undefined) {
 		filtered = filtered.filter(function(item) {
-			return item.ownerId == parseInt(req.query.ownerId, 10);
+			return item.ownerId == ownerIdInt;
 		});
-		res.status(200).send({todos: filtered});
+		var filteredLabels = labels.filter(function(item) {
+			return item.ownerId == ownerIdInt;
+		});
+		res.status(200).send({todos: filtered, labels: filteredLabels});
 	}
 	else
 		res.redirect('/');
@@ -171,7 +175,7 @@ app.post('/todos', function(req, res) {
 		var labelsToNewTodo = [];
 		Object.keys(req.body).map(function(value, index) {
 			if(req.body[value] == 'on')
-				labelsToNewTodo.push(getLabelById(parseInt(value.slice(5), 10)));
+				labelsToNewTodo.push(parseInt(value.slice(5), 10));
 		});
 		var deadline = (req.body.deadline != '') ? req.body.deadline : moment(new Date()).add(14, 'days').format('YYYY.MM.DD.');
 		

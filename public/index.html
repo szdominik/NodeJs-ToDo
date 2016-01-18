@@ -29,6 +29,7 @@
 			<div class="row">
 				<form class="form-inline" action="/todos" method="POST">
 					<div class="form-group">
+						<input type="hidden" class="ownerIdOnSmth" name="ownerId" value="" />
 						<input type="text" class="form-control" placeholder="Mit kell csinálnom?" name="title" />
 						<div class='input-group date' id='datetimepicker2'>
 							<input type='text' class="form-control" name="deadline" />
@@ -46,6 +47,9 @@
 			<div class="row">
 				<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#newLabelModal">
 					Új címke felvitele
+				</button>
+				<button type="button" class="btn btn-danger" id="logoutBtn">
+					Kijelentkezés
 				</button>
 			</div>
 			
@@ -184,7 +188,12 @@
 			
 			$('#datetimepicker2').datetimepicker({
 				locale: 'hu'
-			});	
+			});
+			
+			$('#logoutBtn').click(function(e) {
+				document.cookie = 'owner_id=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+				location.reload(true);
+			});
 		};
 		
 		function getCookie(key) {
@@ -192,7 +201,7 @@
             return keyValue ? keyValue[2] : null;
         };
 		
-		function loadOneToDoToTDs(todo) {
+		function loadOneToDoToTDs(todo, labels) {
 			var s = '';
 			s += '<td>' + todo.title + '</td>'
 			s += '<td>' + todo.deadline + '</td>'
@@ -201,7 +210,10 @@
 					s += '(nincs címke)'
 				else
 					todo.labels.forEach(function(label) {
-						s += '<span class="label label-'+ label.style + '">' + label.name + '</span> '
+						var usedLabel = labels.filter(function(item) {
+							return item.id == label;
+						})[0];
+						s += '<span class="label label-'+ usedLabel.style + '">' + usedLabel.name + '</span> '
 					});
 			s += '</td>'
 			s += '<td>'	
@@ -220,6 +232,7 @@
 					ownerId: getCookie('owner_id')
 				}, function(json) {
 				var todos = json.todos;
+				var labels = json.labels;
 				if (todos.length == 0)
 				{
 					$('#todos-store').html("Nincs megjeleníthető esemény!");
@@ -238,7 +251,7 @@
 						s += '<tbody>'
 							todos.forEach(function(todo) {
 								s += '<tr id="todo'+ todo.id +'">'
-									s += loadOneToDoToTDs(todo);
+									s += loadOneToDoToTDs(todo, labels);
 								s += '</tr>'
 							});
 						s += '</tbody>'
@@ -248,7 +261,7 @@
 					$('.doneButton').click(function(e){
 						var toDoId = $(e.currentTarget).data('tdid');
 						$.post('/donetodo', { id: toDoId }, function(result) {
-							$('#todo' + toDoId).html(loadOneToDoToTDs(result.new_todo));
+							$('#todo' + toDoId).html(loadOneToDoToTDs(result.new_todo, labels));
 						});
 					});
 				}

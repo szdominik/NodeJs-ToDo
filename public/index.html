@@ -2,7 +2,7 @@
 <head>
 	<title>ToDo WebApplication for the course "Databases on Web"</title>
 	<link type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
-	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" integrity="sha256-7s5uDGW3AHqw6xtJmNNtr+OBRJUlgkNJEo78P4b0yRw= sha512-nNo+yCHEyn0smMxSswnf/OnX6/KwJuZTlNZBjauKhTK0c+zT+q5JOCx0UFhXQ6rJR9jg6Es8gPuD2uZcYDLqSw==" crossorigin="anonymous">
+	<link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.6/superhero/bootstrap.min.css" rel="stylesheet" integrity="sha256-AbCXzDgd7Vj/2JrsXgjrLdYZ92AgN262cXvQr4tAQa4= sha512-cA2CLCEXBR7hnXGgSNa+TaQ7WT2zW1IVm6uCLcu3ebHNhy+VIudw9kwgHlcL57wCiiXLZ1x7yT5Mv3QkDO2XZA==" crossorigin="anonymous">
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.1/moment.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.1/locale/hu.js"></script>
@@ -26,7 +26,25 @@
 			</div>
 		</div>
 		<div class="hidden" id="after-check">
-			<div class="row">
+			<nav class="navbar navbar-default">
+				<div class="container-fluid">
+					<ul class="nav navbar-nav navbar-left">
+						<li>
+							<button type="button" class="btn btn-primary" style="margin-left:-15px" data-toggle="modal" data-target="#newLabelModal">
+								Új címke felvitele
+							</button>
+						</li>
+					</ul>
+					<ul class="nav navbar-nav navbar-right">
+						<li>
+							<button type="button" class="btn btn-danger" id="logoutBtn">
+								Kijelentkezés
+							</button>
+						</li>
+					</ul>
+				</div>
+			</nav>
+			<div class="row col-md-offset-2">
 				<form class="form-inline" action="/todos" method="POST">
 					<div class="form-group">
 						<input type="hidden" class="ownerIdOnSmth" name="ownerId" value="" />
@@ -44,16 +62,7 @@
 				</form>
 			</div>
 			
-			<div class="row">
-				<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#newLabelModal">
-					Új címke felvitele
-				</button>
-				<button type="button" class="btn btn-danger" id="logoutBtn">
-					Kijelentkezés
-				</button>
-			</div>
-			
-			<div class="row">
+			<div class="row" style="margin-top: 30px">
 				<div class="col-md-offset-6 btn-group" role="group" id="labels-filter">
 				</div>
 			</div>
@@ -74,7 +83,7 @@
 						<div class="form-group">
 							<input type="text" class="form-control" placeholder="Felhasználónév" id="registerName" name="name" />
 						</div>
-						<button class="btn btn-default" type="submit">Mehet!</button>
+						<button class="btn btn-primary" type="submit">Mehet!</button>
 					</form>
 				</div>
 			</div>
@@ -94,7 +103,7 @@
 							<input type="text" class="form-control" placeholder="Felhasználónév" id="signinName" name="name" />
 
 						</div>
-						<button class="btn btn-default" type="submit">Bejelentkezés</button>
+						<button class="btn btn-primary" type="submit">Bejelentkezés</button>
 					</form>
 				</div>
 			</div>
@@ -122,7 +131,7 @@
 								<option value="danger">danger</option>
 							</select>
 						</div>
-						<button class="btn btn-default" type="submit">Új felvétele</button>
+						<button class="btn btn-primary" type="submit">Új felvétele</button>
 					</form>
 				</div>
 				<div class="modal-footer">
@@ -218,7 +227,7 @@
 			s += '</td>'
 			s += '<td>'	
 				if(todo.done)
-					s += '<span class="label label-success">Kész!</span>'
+					s += '<span class="label label-success">Korábban elkészült!</span>'
 				else
 					s += '<button type="button" data-tdid="' + todo.id
 							+'" class="doneButton btn btn-danger btn-xs">Elkészültem!</button>'
@@ -239,7 +248,7 @@
 				}
 				else
 				{
-					var s = '<table class="table table-hover table-condensed">'
+					var s = '<table class="table table-hover">'
 						s += '<thead>'
 							s += '<tr>'
 								s += '<th>Mit kell csinálnom?</th>'
@@ -272,13 +281,13 @@
 			$.getJSON('/labels', { ownerId: getCookie('owner_id')}, function(json) {
 				var labels = json.labels;
 				var store = '';
-				var filter = '<button type="button" class="labelBtn btn btn-default"' + 
+				var filter = '<button type="button" class="labelBtn btn btn-default btn-sm"' + 
 							'data-labelid="0">Mind</button>'
 				labels.forEach(function(label) {
 					store += '<label class="btn btn-' + label.style + '">'
 						+ '<input name="label' + label.id + '" type="checkbox" autocomplete="off">'
 						+ label.name + '</label>';
-					filter += '<button type="button" class="labelBtn btn btn-'+ label.style + '"' +
+					filter += '<button type="button" class="labelBtn btn btn-'+ label.style + ' btn-sm"' +
 						'data-labelid="' + label.id + '">'
 						+ label.name + '</button>';
 				});

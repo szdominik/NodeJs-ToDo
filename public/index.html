@@ -107,6 +107,7 @@
 				<div class="modal-body">
 					<form class="form-inline" action="/labels" method="POST">
 						<div class="form-group">
+							<input type="hidden" class="ownerIdOnSmth" name="ownerId" value="" />
 							<input type="text" class="form-control" placeholder="Címke neve" name="name" />
 							<select class="form-control" name="style">
 								<option value="default">default</option>
@@ -149,7 +150,7 @@
 				}).done(function(result) {
 					initMainToDo(result.ownerId);
 				}).fail(function(result) {
-					var s = 'Sajnos a(z) ' + result.name + ' név már foglalt! Kérem, próbálja újra!'
+					var s = 'Sajnos a(z) ' + userName + ' név már foglalt! Kérem, próbálja újra!'
 					alert(s);
 				}).always(function() {
 					$('#registerModal').modal('hide');
@@ -174,6 +175,8 @@
 		
 		function initMainToDo(ownerId) {
 			document.cookie = "owner_id=" + ownerId;
+			$('.ownerIdOnSmth').val(getCookie('owner_id'));
+			
 			$('#before-check').removeClass('show').addClass('hidden');
 			$('#after-check').removeClass('hidden').addClass('show');
 			loadAllToDos();

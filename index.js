@@ -92,9 +92,9 @@ function getLabelById(id) {
 	})[0];
 };
 
-function getLabelByName(name) {
+function getLabelByName(name, id) {
 	return labels.filter(function(item) {
-		return item.name == name;
+		return item.ownerId == id && item.name == name;
 	})[0];
 };
 
@@ -189,7 +189,7 @@ app.post('/todos', function(req, res) {
 });
 
 app.post('/labels', function(req, res) {
-	if(getLabelByName(req.body.name) == undefined && req.body.name != '') {
+	if(getLabelByName(req.body.name, req.body.ownerId) == undefined && req.body.name != '') {
 		var new_label = {
 			ownerId: req.body.ownerId,
 			id: labels.length + 1,

@@ -122,6 +122,10 @@ app.get('/todos', function(req, res) {
 		filtered = filtered.filter(function(item) {
 			return hasLabel(item, parseInt(req.query.labelId, 10));
 		});
+	if(req.query.isDone != undefined && req.query.isDone != 0)
+		filtered = filtered.filter(function(item) {
+			return item.done;
+		});
 	if(req.query.ownerId != undefined) {
 		filtered = filtered.filter(function(item) {
 			return item.ownerId == ownerIdInt;

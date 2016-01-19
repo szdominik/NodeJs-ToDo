@@ -63,7 +63,15 @@
 			</div>
 			
 			<div class="row" style="margin-top: 30px">
-				<div class="col-md-offset-6 btn-group" role="group" id="labels-filter">
+				<div class="col-md-offset-6 col-md-3 btn-group" role="group" id="labels-filter">
+				</div>
+				<div class="col-md-2 btn-group" role="group" id="done-filter">
+					<button type="button" class="doneBtn btn btn-default btn-sm" data-isdone="0">
+						Mind
+					</button>
+					<button type="button" class="doneBtn btn btn-success btn-sm" data-isdone="1">
+						Már elkészültek
+					</button>
 				</div>
 			</div>
 			
@@ -203,6 +211,10 @@
 				document.cookie = 'owner_id=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
 				location.reload(true);
 			});
+			$('.doneBtn').click(function(e) {
+				var isDone = $(e.currentTarget).data('isdone');
+				loadAllToDos(0, isDone);
+			});
 		};
 		
 		function getCookie(key) {
@@ -235,9 +247,10 @@
 			return s;
 		};
 		
-		function loadAllToDos(labelId) {
+		function loadAllToDos(labelId, isDone) {
 			$.getJSON('/todos', { 
 					labelId: labelId,
+					isDone: isDone,
 					ownerId: getCookie('owner_id')
 				}, function(json) {
 				var todos = json.todos;

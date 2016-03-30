@@ -52,7 +52,7 @@ var todos = [
 		ownerId: 1,
 		id: 2,
 		title: 'CodeCheckert csinálni',
-		deadline: '2016.01.15.',
+		deadline: '2017.01.15.',
 		labels: [2],
 		done: false
 	},
